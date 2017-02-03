@@ -12,15 +12,21 @@ if (isset($_REQUEST["call"])) {
 	}
 	switch ($call) {
 		case "add":
-			countFos($_REQUEST["fid"],$_REQUEST["group"],$_REQUEST["title"],$_REQUEST["room"],"+","added");
+			countFos($_REQUEST["fid"],$_REQUEST["group"],$_REQUEST["title"],$_REQUEST["room"],"+","added",$_REQUEST["print"],$_REQUEST["print2"]);
 			break;
 		case "min":
-			countFos($_REQUEST["fid"],$_REQUEST["group"],$_REQUEST["title"],$_REQUEST["room"],"-","removed");
+			countFos($_REQUEST["fid"],$_REQUEST["group"],$_REQUEST["title"],$_REQUEST["room"],"-","removed",$_REQUEST["print"],$_REQUEST["print2"]);
 			break;
 		case "visible":
 			hideGroup($_REQUEST["group"],$_REQUEST["fid"]);
 			break;
+        case "bind":
+            bind($_REQUEST["bind"],$_REQUEST["id"]);
+            break;
 		default:
 			sendError();
 	}
 }
+
+
+

@@ -1,68 +1,42 @@
 <?php
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<title></title>
+/**
+ * A simple, clean and secure PHP Login Script / MINIMAL VERSION
+ *
+ * Uses PHP SESSIONS, modern password-hashing and salting and gives the basic functions a proper login system needs.
+ *
+ * @author Panique
+ * @link https://github.com/panique/php-login-minimal/
+ * @license http://opensource.org/licenses/MIT MIT License
+ */
 
-		<!-- Bootstrap -->
-		<link href="css/bootstrap.min.css" rel="stylesheet">
-		<link href="css/main.css" rel="stylesheet">
+// checking for minimum PHP version
+if (version_compare(PHP_VERSION, '5.3.7', '<')) {
+    exit("Sorry, Simple PHP Login does not run on a PHP version smaller than 5.3.7 !");
+} else if (version_compare(PHP_VERSION, '5.5.0', '<')) {
+    // if you are using PHP 5.3 or PHP 5.4 you have to include the password_api_compatibility_library.php
+    // (this library adds the PHP 5.5 password hashing functions to older versions of PHP)
+    require_once("libraries/password_compatibility_library.php");
+}
 
-		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-		<!--[if lt IE 9]>
-		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-		<![endif]-->
-	</head>
-	<body>
-	<div class="container" >
-		<div class="row" style="position:relative;">
-			<div id="remove">
-				<span class="removelabel">enable remove</span>
-				<label class="switch">
+// include the configs / constants for the database connection
+require_once("config/db.php");
 
-					<input type="checkbox">
-					<div class="slider round"></div>
-				</label>
-			</div>
-			<div id="roomselect">
+// load the login class
+require_once("classes/Login.php");
 
-			</div>
-			<div id="fosdemPosTitle">
+// create a login object. when this object is created, it will do all login/logout stuff automatically
+// so this single line handles the entire login process. in consequence, you can simply ...
+$login = new Login();
 
-			</div>
+// ... ask if we are logged in here:
+if ($login->isUserLoggedIn() == true) {
+    // the user is logged in. you can do whatever you want here.
+    // for demonstration purposes, we simply show the "you are logged in" view.
+    include("fosdem.php");
 
-
-			<div id="pos">
-
-			</div>
-			<div id="hidden">
-
-			</div>
-		</div>
-
-
-	</div>
-
-	<div class="container" >
-		<div class="row">
-			<div class="alerts"></div>
-		</div>
-	</div>
-
-	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.js"></script>
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/config.js"></script>
-	<script src="js/main.js"></script>
-	</body>
-</html
+} else {
+    // the user is not logged in. you can do whatever you want here.
+    // for demonstration purposes, we simply show the "you are not logged in" view.
+    include("views/not_logged_in.php");
+}

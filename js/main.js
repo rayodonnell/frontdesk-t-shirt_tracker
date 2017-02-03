@@ -48,7 +48,7 @@
             document.title = config.title;
             $("#fosdemPosTitle").empty().append(config.title);
             $.getJSON( "js/rooms.json.php", function( datarooms ) {
-                $.get('/newv2/js/template/partials/rooms.tpl.php', function () {
+                $.get('/js/template/partials/rooms.tpl.php', function () {
                 }, 'html').done(function(e){
                     var template=Handlebars.compile(e);
                     $("#roomselect").append(template(datarooms));
@@ -60,7 +60,7 @@
             $.getJSON( "js/events.json.php", function( data ) {
                 var len = data.category.length;
                 $.each( data.category, function( key, val ) {
-                    $.get('/newv2/js/template/partials/category.tpl.php', function () {
+                    $.get('/js/template/partials/category.tpl.php', function () {
                     }, 'html').done(function(e){
                         var template=Handlebars.compile(e);
                         $("#hidden").append(template(val));
@@ -91,10 +91,12 @@
                 $group = $(this).data("group");
                 $title = $(this).data("title");
                 $room = $("#roomselect option:selected").val();
+                $print = $(this).data("print");
+                $print2 = $(this).data("print2");
                 if ($call == "add") {
                     if (!$(this).hasClass('disabled')) {
                         $('.alerts').prepend('<div class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>You added the item: '+$(this).text()+' - '+datetime+'</div>');
-                        sendAjax($fid,$group,$call,$title,$room);
+                        sendAjax($fid,$group,$call,$title,$room,$print,$print2);
                     }
                 }
                 else {
@@ -107,22 +109,22 @@
                 if ($(this).closest('.panel-default').children('.panel-body').is(":hidden")) {
                     $group = $(this).data("group");
                     $(this).closest('.panel-default').children('.panel-body').show("fast");
-                    sendAjax(1,$group,"visible","",$room)
+                    sendAjax(1,$group,"visible","",$room,"","");
                 }
                 else {
                     $group = $(this).data("group");
                     $(this).closest('.panel-default').children('.panel-body').hide("fast");
-                    sendAjax(0,$group,"visible","",$room);
+                    sendAjax(0,$group,"visible","",$room,"","");
                 }
 
             });
 
         }
-        function sendAjax($fid,$group,$call,$title,$room) {
+        function sendAjax($fid,$group,$call,$title,$room,$print,$print2) {
             $.ajax({
                 url: 'inc/rest.php',
                 type: "post",
-                data: { fid: $fid, group: $group, call: $call,title:$title,room:$room },
+                data: { fid: $fid, group: $group, call: $call,title:$title,room:$room,print:$print,print2:$print2 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     //console.log(errorThrown);
                 },

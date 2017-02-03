@@ -147,3 +147,23 @@ input:checked + .slider:before {
 #roomselect select {
     width: 150px;
 }
+
+.bindline {
+    margin-bottom:10px;
+    font-size:16px;
+    border-bottom:1px solid #ddd;
+    padding-bottom:10px;
+}
+
+.bindline span {
+    padding-right:15px;
+    font-weight:bold;
+}
+.bindline span.nobold,.bindline span.bindselect {
+    font-weight:normal;
+}
+
+.bind .panel-body {
+    padding-right:0px;
+    padding-left:0px;
+}

@@ -1,16 +1,20 @@
 {
 	"rooms": [
 		{
-			"name":"BUILDING K - printer 1",
-			"id":"BUILDING K1"
+			"name":"(1) BUILDING K",
+			"id":"1"
 		},
 		{
-			"name":"BUILDING K - printer 2",
-			"id":"BUILDING K2"
+			"name":"(2) BUILDING K",
+			"id":"2"
 		},
 		{
-			"name":"BUILDING H",
-			"id":"BUILDING H"
-		}
+			"name":"(3) BUILDING H",
+			"id":"3"
+		},
+        {
+            "name":"(4) DISABLED",
+            "id":"4"
+        }
 	]
 }
