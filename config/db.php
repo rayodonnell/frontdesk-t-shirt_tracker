@@ -11,7 +11,12 @@
  * DB_USER: user for your database. the user needs to have rights for SELECT, UPDATE, DELETE and INSERT.
  * DB_PASS: the password of the above user
  */
-define("DB_HOST", "127.0.0.1");
-define("DB_NAME", "db_fosdem");
-define("DB_USER", "placeholder");
-define("DB_PASS", "placeholder");
+
+// TODO: Why are DB params defined in two places????
+// - see also inc/config.php
+
+define('DB_HOST', '127.0.0.1');
+define('DB_NAME', 'tshirts');
+define('DB_USER', 'fosdem_temp');
+define('DB_PASS', 'fosdem_temp');
+define('DB_PORT', '5434');
