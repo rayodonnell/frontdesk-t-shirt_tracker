@@ -4,75 +4,80 @@ $config = include('config.php');
 
 if (isset($_GET["id"])) {
 	$id = $_GET["id"];
+
     global $config;
-    $conn = new mysqli($config["servername"], $config["username"], $config["password"], $config["dbname"]);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+
+    $conn = pg_connect($config['conn_str']);
+    if (pg_connection_status($conn) != PGSQL_CONNECTION_OK) {
+        die('Connection failed: ' . pg_last_error($conn));
     }
 
-    $sql = "SELECT boundid FROM fosdem_alive where posid=?";
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("s", $id);
-        $stmt->execute();
-        $stmt->bind_result($id);
-        $stmt->fetch();
-        if (is_numeric($id)) {
-            $sql = "SELECT * FROM fosdem_print where printid=? and status = 0";
-            $stmt = $conn->prepare($sql);
-            if ($stmt = $conn->prepare($sql)) {
-                $stmt->bind_param("s", $id);
-                $stmt->execute();
-                $meta = $stmt->result_metadata();
+    $sql = 'select boundid from fosdem_alive where posid = $1';
+    $rs = pg_query_params($conn, $sql, array($id));
 
-                while ($field = $meta->fetch_field()) {
-                    $params[] = &$row[$field->name];
-                }
-
-                call_user_func_array(array($stmt, 'bind_result'), $params);
-
-                while ($stmt->fetch()) {
-                    foreach ($row as $key => $val) {
-                        $c[$key] = $val;
-                    }
-                    $result[] = $c;
-                }
-            }
-            $stmt->close();
-            $conn->close();
-            foreach($result as $key => &$value) {
-                if (isset($value["print"])) {
-                    $fileone = file_get_contents($value["print"]);
-                    $fileone = str_replace("[nr]",$value["id"],$fileone);
-                    $date = date("d-m-Y H:i:s");
-                    $fileone = str_replace("[date]",$date,$fileone);
-                    $printvalue = str_replace("(hoodie)","",$value["printvalue"]);
-                    $fileone = str_replace("[donation]",$printvalue,$fileone);
-                    $value["print"] = $fileone;
-                }
-                if (isset($value["print2"])) {
-                    if ($value["print2"] != "none") {
-                        $fileone = file_get_contents($value["print2"]);
-                        $fileone = str_replace("[nr]",$value["id"],$fileone);
-                        $date = date("d-m-Y H:i:s");
-                        $fileone = str_replace("[date]",$date,$fileone);
-                        $value["print2"] = $fileone;
-                    }
-                }
-            }
-            echo json_encode($result);
+    if ($rs === false) {
+        die('Error: ' . pg_last_error($conn));
+    }
+    else {
+        $row = pg_fetch_assoc($rs);
+        if ($row === false) {
+            die('Error: no rows returned'); // TODO: Does this work here?
         }
+        else {
+            if (is_numeric($id)) {
+                $sql = 'select * from fosdem_print where printid = $1 and status = 0';
+                $rsPrint = pg_query_params($conn, $sql, array($id));
+
+                if ($rsPrint === false) {
+                    die('Error: ' . pg_last_error($conn));
+                }
+                else {
+                    $result = array();
+
+                    while ($printRow = pg_fetch_assoc($rsPrint)) {
+                        if (isset($printRow['print'])) {
+                            $fileone = file_get_contents($printRow['print']);
+                            $fileone = str_replace('[nr]', $printRow['id'], $fileone);
+                            $date = date("d-m-Y H:i:s");
+                            $fileone = str_replace('[date]', $date, $fileone);
+                            $printvalue = str_replace('(hoodie)', '', $printRow['printvalue']);
+                            $fileone = str_replace('[donation]', $printvalue, $fileone);
+                            $printRow["print"] = $fileone;
+                        }
+                        if (isset($printRow['print2'])) {
+                            if ($printRow['print2'] != 'none') {
+                                $fileone = file_get_contents($printRow['print2']);
+                                $fileone = str_replace('[nr]', $printRow['id'], $fileone);
+                                $date = date('d-m-Y H:i:s');
+                                $fileone = str_replace('[date]', $date, $fileone);
+                                $printRow['print2'] = $fileone;
+                            }
+                        }
+                        $result[] = $printRow;
+                    }
+                    pg_free_result($rsPrint);
+
+                }
+                echo json_encode($result);
+            }
+        }
+        pg_free_result($rs);
     }
+    pg_close($conn);
 }
 else if (isset($_GET["uid"])) {
 	global $config;
+
 	$uid = $_GET["uid"];
-	$conn = new mysqli($config["servername"], $config["username"], $config["password"], $config["dbname"]);
-	$sql = "update fosdem_print set status = 1 where  id = ? ";
-	if ($stmt = $conn->prepare($sql)) {
-		$stmt->bind_param("i", $uid);
-		$stmt->execute();
-	}
-	$stmt->close();
-	$conn->close();
-	echo "done";
+
+    $conn = pg_connect($config['conn_str']);
+    if (pg_connection_status($conn) != PGSQL_CONNECTION_OK) {
+        die('Connection failed: ' . pg_last_error($conn));
+    }
+
+	$sql = 'update fosdem_print set status = 1 where  id = $1';
+    pg_query_params($conn, $sql, array($uid));
+    pg_close($conn);
+
+    echo "done";
 }
