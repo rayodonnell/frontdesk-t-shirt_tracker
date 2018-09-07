@@ -58,7 +58,7 @@ class Login
                 . DB_USER . ' password=' . DB_PASS;
             $conn = pg_connect($connStr);
 
-            // change character set to utf8 and check it
+            // Change character set to utf8 and check it.
             if (pg_set_client_encoding($conn, 'UTF8') !== 0) {
                 $this->errors[] = pg_last_error($conn);
             }
