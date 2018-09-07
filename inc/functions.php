@@ -69,6 +69,7 @@ function countFos($fid, $group, $title, $room, $operator, $text, $print, $print2
     }
 
     logger($fid, $group, "You " . $text . " the item: " . $title . " in room " . $room, $room);
+
     header('Content-type: application/json');
     echo json_encode("done");
 }
@@ -77,24 +78,33 @@ function countFos($fid, $group, $title, $room, $operator, $text, $print, $print2
 function getCount($fid)
 {
     global $config;
-    $conn = new mysqli($config["servername"], $config["username"], $config["password"], $config["dbname"]);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
+
+
+    $conn = pg_connect($config['conn_str']);
+    if (pg_connection_status($conn) != PGSQL_CONNECTION_OK) {
+        die('Connection failed: ' . pg_last_error($conn));
     }
-    $sql = "SELECT fcount FROM fosdem where fid=?";
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $fid);
-        $stmt->execute();
+
+    $sql = 'select fcount from fosdem where fid = $1';
+    $rs = pg_query_params($conn, $sql , array($fid));
+
+    if ($rs === false) {
+        die('Error: ' . pg_last_error($conn));
+    }
+    else {
         $total = 0;
-        $stmt->bind_result($fcount);
-        while ($stmt->fetch()) {
-            $total = $fcount;
+
+        while ($row = pg_fetch_assoc($rs)) {
+            $total = $row['fcount'];
         }
     }
-    $stmt->close();
-    $conn->close();
+
+    pg_free_result($rs);
+    pg_close($conn);
+
     return $total;
 }
+
 
 function getCountTotal($fgroup)
 {
